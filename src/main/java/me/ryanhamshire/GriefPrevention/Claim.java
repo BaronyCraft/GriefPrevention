@@ -77,6 +77,9 @@ public class Claim
 	
 	//following a siege, buttons/levers are unlocked temporarily.  this represents that state
 	public boolean doorsOpen = false;
+    
+    // allow the player to give a name so they can remember which is which
+    private String claimName = "";
 	
 	//whether or not this is an administrative claim
 	//administrative claims are created and maintained by players with the griefprevention.adminclaims permission.
@@ -686,7 +689,18 @@ public class Claim
 			return GriefPrevention.instance.dataStore.getMessage(Messages.OwnerNameForAdminClaims);
 		
 		return GriefPrevention.lookupPlayerName(this.ownerID);
-	}	
+	}
+    
+    // return the name that was set using /claimname
+    public String getName() {
+        return claimName;
+    }
+    
+    // set the name, return self to allow for claim.setName().somethingelse()
+    public Claim setName(String name) {
+        this.claimName=name;
+        return this;
+    }
 	
 	//whether or not a location is in a claim
 	//ignoreHeight = true means location UNDER the claim will return TRUE

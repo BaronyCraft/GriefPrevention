@@ -21,6 +21,7 @@ package me.ryanhamshire.GriefPrevention;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -1267,6 +1268,40 @@ public class GriefPrevention extends JavaPlugin
             return true;
         }
 		
+        
+		//claimname
+		if(cmd.getName().equalsIgnoreCase("claimname") && player != null) {
+            //must be standing in a land claim
+            PlayerData playerData = this.dataStore.getPlayerData(player.getUniqueId());
+            Claim claim = this.dataStore.getClaimAt(player.getLocation(), true, playerData.lastClaim);
+            if(claim == null)
+            {
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.StandInClaimToName);
+                return true;
+            }
+            
+            //must have permission to edit the land claim you're in
+            String errorMessage = claim.allowEdit(player);
+            if(errorMessage != null)
+            {
+                GriefPrevention.sendMessage(player, TextMode.Err, Messages.NotYourClaim);
+                return true;
+            }
+
+            if (args.length != 0) {
+                String newName=String.join(" ", Arrays.asList(args));
+                claim.setName(newName);
+                this.dataStore.saveClaim(claim);
+            }
+            String name=claim.getName();
+            if (name!=null && !name.isEmpty()) {
+                GriefPrevention.sendMessage(player, TextMode.Info, Messages.ClaimName, claim.getName());
+            } else {
+                GriefPrevention.sendMessage(player, TextMode.Info, Messages.UnnamedClaim);
+            }
+            return true;
+        }
+            
 		//abandonclaim
 		if(cmd.getName().equalsIgnoreCase("abandonclaim") && player != null)
 		{
@@ -2170,9 +2205,16 @@ public class GriefPrevention extends JavaPlugin
     			for(int i = 0; i < playerData.getClaims().size(); i++)
     			{
     				Claim claim = playerData.getClaims().get(i);
-    				GriefPrevention.sendMessage(player, TextMode.Instr, getfriendlyLocationString(claim.getLesserBoundaryCorner()) + this.dataStore.getMessage(Messages.ContinueBlockMath, String.valueOf(claim.getArea())));
+                    String playerMessage = getfriendlyLocationString(claim.getLesserBoundaryCorner())+
+                            ", " + claim.getWidth() + "x" + claim.getHeight() + " " +
+                            this.dataStore.getMessage(Messages.ContinueBlockMath, String.valueOf(claim.getArea()));
+                    String claimName=claim.getName();
+                    if (claimName!=null && !claimName.isEmpty()) {
+                        playerMessage = playerMessage + " ("+claimName+")";
+                    }
+
+    				GriefPrevention.sendMessage(player, TextMode.Instr, playerMessage);
     			}
-			
 				GriefPrevention.sendMessage(player, TextMode.Instr, Messages.EndBlockMath, String.valueOf(playerData.getRemainingClaimBlocks()));
 			}
 			

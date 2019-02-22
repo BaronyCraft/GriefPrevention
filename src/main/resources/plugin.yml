@@ -219,6 +219,11 @@ commands:
       description: Gives a player a manual about claiming land.
       usage: /ClaimBook <player>
       permission: griefprevention.claimbook
+    claimname:
+      description: Name the claim you're standing inside.
+      usage: /claimname <name>
+      aliases: [nameclaim]
+      permission: griefprevention.claims
 permissions:
     griefprevention.createclaims:
         description: Grants permission to create claims.
